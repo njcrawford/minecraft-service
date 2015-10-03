@@ -351,12 +351,22 @@ server_log() {
       ;;
       "1.7"|*)
         log_line_regex="\[(..:..:..)\] \[(.*)/(.{0,4})\]: (.*)"
-        [[ $log_line_input =~ $log_line_regex ]]
-        log_line_date=""
-        log_line_time="${BASH_REMATCH[1]}"
-#        log_line_thread="${BASH_REMATCH[2]}"
-        log_line_type="${BASH_REMATCH[3]}"
-        log_line_message="${BASH_REMATCH[4]}"
+        if [[ $log_line_input =~ $log_line_regex ]]; then
+          log_line_date=""
+          log_line_time="${BASH_REMATCH[1]}"
+#          log_line_thread="${BASH_REMATCH[2]}"
+          log_line_type="${BASH_REMATCH[3]}"
+          log_line_message="${BASH_REMATCH[4]}"
+        else
+          # Support CraftBukkit log format
+          cb_log_line_regex="\[(..:..:..) (.*)\]: (.*)"
+          [[ $log_line_input =~ $cb_log_line_regex ]]
+          log_line_date=""
+          log_line_time="${BASH_REMATCH[1]}"
+#          log_line_thread="${BASH_REMATCH[2]}"
+          log_line_type="${BASH_REMATCH[2]}"
+          log_line_message="${BASH_REMATCH[3]}"
+        fi
         
         # Create log timestamp from log time in hh:mm:ss + todays date
         log_line_timestamp=$(date -d "$(date +%F) $log_line_time" +%s)
